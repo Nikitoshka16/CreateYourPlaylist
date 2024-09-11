@@ -1,0 +1,60 @@
+services:
+
+  django:
+    build: 
+      context: ./back
+    container_name: django
+    command: python ./back/manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/usr/src/app
+    ports:
+      - 8000:8000
+    depends_on:
+      - pgdb
+
+  pgdb:
+    image: postgres
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    container_name: pgdb
+    volumes:
+      - pgdbdata:/var/lib/postgresql/data/
+    ports:
+      - 5432:5432
+  
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - pgdb
+  
+  nginx:
+    image: nginx
+    container_name: nginx
+    volumes:
+      - ./front/dist:/usr/share/nginx/html
+    ports:
+      - "80:80"
+    depends_on:
+      - vue
+  
+  vue:
+    build:
+      context: ./front
+    command: npm run build
+    container_name: vue
+    volumes:
+      - ./front:/front
+      - /front/node_modules
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdbdata: null
