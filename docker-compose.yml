@@ -11,6 +11,8 @@ services:
       - 8000:8000
     depends_on:
       - pgdb
+    networks:
+      - webweb
 
   pgdb:
     image: postgres
@@ -23,6 +25,8 @@ services:
       - pgdbdata:/var/lib/postgresql/data/
     ports:
       - 5432:5432
+    networks:
+      - webweb
   
   pgadmin:
     image: dpage/pgadmin4
@@ -34,6 +38,8 @@ services:
       - "5050:80"
     depends_on:
       - pgdb
+    networks:
+      - webweb
   
   nginx:
     image: nginx
@@ -44,6 +50,8 @@ services:
       - "80:80"
     depends_on:
       - vue
+    networks:
+      - webweb
   
   vue:
     build:
@@ -55,6 +63,12 @@ services:
       - /front/node_modules
     ports:
       - "8080:8080"
+    networks:
+      - webweb
 
 volumes:
   pgdbdata: null
+
+networks:
+  webweb:
+    driver: bridge
