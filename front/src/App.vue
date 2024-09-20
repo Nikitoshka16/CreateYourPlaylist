@@ -1,6 +1,11 @@
 <template>
   <div>
-    <h1>{{ message }} </h1>
+    <ul>
+      <li v-for="musician in musicians" :key="musician.id">
+        <strong>Label Name:</strong> {{ musician.labelName }}<br />
+        <strong>Label Country:</strong> {{ musician.labelCountry }}
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -10,7 +15,7 @@ import axios from 'axios';
 export default {
   data() {
     return {
-      message: ''
+      musicians: [],
     };
   },
   mounted() {
@@ -19,9 +24,9 @@ export default {
   methods: {
     async HelloWorld(){
       try {
-          const response = await axios.get('http://localhost:8000/api/hello/');
-          console.log(response)
-          this.message = response.data.message
+          const response = await axios.get('http://localhost:8000/api/musicians/');
+          console.log(response.data.musicians)
+          this.musicians = response.data.musicians
       }catch (e){
           console.log(e)
       }
