@@ -14,4 +14,5 @@ def getAllSongs(request):
     songs = Songs.objects.select_related('musician').all();
     serializer = SongSerializer(songs, many=True)
     
-    return Response({'songs': songs.JSON})
+    return Response({'songs': serializer.data})
+
