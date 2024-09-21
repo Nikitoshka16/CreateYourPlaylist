@@ -1,7 +1,16 @@
 from rest_framework import serializers
-from .models import Musician
+from .models import Songs, Musicians
+
 
 class MusicianSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Musician
-        fields = '__all__'  # Или перечислите конкретные поля: ['id', 'labelName', 'labelCountry', 'labelWebsite', 'labelEmail']
+        model = Musicians
+        fields = '__all__'
+
+class SongSerializer(serializers.ModelSerializer):
+    musician = MusicianSerializer()
+
+    class Meta:
+        model = Songs
+        fields = '__all__' 
+
