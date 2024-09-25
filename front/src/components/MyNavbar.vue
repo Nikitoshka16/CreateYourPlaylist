@@ -1,42 +1,56 @@
 <template>
-  <div class="navbar">
-      <div>
-          МЕСТО ДЛЯ ЛОГО
-      </div>
-      <div>
-          <button
-                  @click="$router.push({
-                  name: 'mailingPage',
-                   params: {
-                      id : this.$route.params['id'],
-                      role: this.$route.params['role']
-                  }
-                  })"
-                  style="margin-left: 20px"
-          >
-              Рассылка
-          </button>
+    <div class="header">
 
-          <button
+        <div class="navbar">
+
+            <img class="logo" src="../assets/logo.png" alt="logo">
+
+            <my-button
+                  @click="$router.push({
+                  name: 'mainPage'})"
+
+            >
+            Главная
+            </my-button>
+
+            <my-button
+                @click="$router.push({
+                    name: 'playlistPage',
+                    params: {
+                        id : this.$route.params['id']
+                    }
+                })"
+            >
+            Плейлисты
+            </my-button>     
+
+        </div>
+
+        <div class="auth">
+
+            <my-button
               v-show="!store.getters.getIsAuth"
-              @click="$router.push('/login')"
-              style="margin-left: 20px"
-          >
-              Авторизация
-          </button>
-          <button
+              @click="loginUser"
+            >
+            Авторизация
+            </my-button>
+
+            <my-button
               v-show="store.getters.getIsAuth"
               @click="exitUser"
-              style="margin-left: 20px"
-          >
-              Выйти
-          </button>
-      </div>
-  </div>
+            >
+                <img src="../assets/user.png" alt="profile icon">
+                Профиль
+            </my-button>
+
+        </div>
+    </div>
 </template>
 
 <script>
 
+import MyButton from "@/components/UI/MyButton.vue";
+import store from "@/store";
 import router from "@/router/router";
 
 export default {
@@ -49,24 +63,35 @@ export default {
     components: {MyButton},
     methods: {
         exitUser(){
-            router.push('/login')
+            router.push('/')
             store.dispatch('changeIsAuth')
-            store.dispatch('changeIsAuthAdmin')
+        },
+        loginUser() {
+            store.dispatch('changeFormAuth')
         }
     }
 }
 </script>
 
 <style scoped>
-.navbar{
-    height: 70px;
-    background-color: lightblue;
-    box-shadow: 2px 2px 4px gray;
+.header{
+    padding: 1em;
+    padding-inline: 2em;
+    background: transparent;
+    height: 100vh-2em;
     display: flex;
-    align-items: center;
-    padding: 0 15px;
+    flex-direction: column;
+    justify-content: space-between;
 }
-.navbar__btns{
-    margin-left: auto;
+.navbar {
+    display: flex;
+    flex-direction: column;
+}
+.logo {
+    width: 10em;
+    padding-bottom: 2em;
+}
+img {
+    width: 5em;
 }
 </style>
