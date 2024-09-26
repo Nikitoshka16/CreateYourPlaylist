@@ -12,7 +12,7 @@
             >
             Главная
             </my-button>
-
+ 
             <my-button
                 @click="$router.push({
                     name: 'playlistPage',
@@ -37,10 +37,15 @@
 
             <my-button
               v-show="store.getters.getIsAuth"
-              @click="exitUser"
+              @click="$router.push({
+                    name: 'userPage',
+                    params: {
+                        id : this.$route.params['id']
+                    }
+                })"
             >
                 <img src="../assets/user.png" alt="profile icon">
-                Профиль
+                {{ store.getters.getUser.username}}
             </my-button>
 
         </div>

@@ -3,7 +3,9 @@ import {createStore} from "vuex";
 export default createStore({
     state: () => ({
         isAuth: false,
-        formAuth: false
+        formAuth: false,
+        userData: [],
+        theme: false,
     }),
     getters: {
         getIsAuth(state){
@@ -11,12 +13,21 @@ export default createStore({
         },
         getFormAuth(state){
             return state.formAuth
+        },
+        getUser(state){
+            return state.userData
+        },
+        getTheme(state) {
+            return state.theme
         }
     },
     mutations: {
-        // setClients(state, clients){
-        //     state.clients = clients;
-        // }
+        set_User(state, user) {
+            state.userData = user;
+        },
+        setTheme(state, theme) {
+            state.theme = theme;
+        }
     },
     actions: {
         changeIsAuth(){
@@ -25,11 +36,11 @@ export default createStore({
         changeFormAuth(){
             this.state.formAuth= !this.state.formAuth
         },
-        // changeIsAuthAdmin(){
-        //     this.state.isAuthAdmin = !this.state.isAuthAdmin
-        // },
-        // createUser(user){
-        //     this.state.user = user
-        // }
+        setUser({commit}, user) {
+            commit('set_User', user) 
+        },
+        changeTheme({ commit }, theme = !this.state.theme) {
+            commit('setTheme', theme);
+        }
     }
 })

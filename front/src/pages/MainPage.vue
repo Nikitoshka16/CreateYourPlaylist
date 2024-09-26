@@ -37,10 +37,12 @@
 </template>
 
 <script>
+import Cookies from 'js-cookie';
 import store from '@/store';
 import axios from 'axios'
 import MyInput from '../components/UI/MyInput.vue';
 import MyButton from '../components/UI/MyButton.vue';
+import router from '@/router/router';
 export default {
   components: { MyInput, MyButton },
     name: 'MainPage',
@@ -63,7 +65,6 @@ export default {
     async GetAllSongs(){
       try {
           const response = await axios.get('http://localhost:8000/api/allsongs/');
-          console.log(response.data.songs)
           this.songs = response.data.songs
       }catch (e){
           console.log(e)
@@ -77,6 +78,9 @@ export default {
           store.dispatch('changeFormAuth');
           this.password = '';
           this.email = '';
+          store.dispatch('setUser', res.data.user);
+          router.push('/profile')
+          // Cookies.set('access_token', response.data.access, { expires: 1 });
         }
         else if (res.status === 200 && res.data.message === 'incorrect'){
           alert('Неверный пароль');

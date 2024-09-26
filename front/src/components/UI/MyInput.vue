@@ -27,7 +27,7 @@ export default {
   },
   data() {
     return {
-      showPassword: true
+      showPassword: false
     };
   },
   computed: {

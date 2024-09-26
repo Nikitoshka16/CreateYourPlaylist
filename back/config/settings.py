@@ -46,10 +46,17 @@ MIDDLEWARE = [
 
 CORS_ALLOW_ALL_ORIGINS = True
 
+CORS_ALLOW_CREDENTIALS = True
+
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:80',
     'http://localhost:5173',
     
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    'http://localhost:5173',  # Укажите здесь ваш фронтенд
+    'http://localhost:80',
 ]
 
 ROOT_URLCONF = 'config.urls'
