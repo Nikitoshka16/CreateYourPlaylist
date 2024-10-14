@@ -3,9 +3,15 @@
     <my-navbar>
 
     </my-navbar>
-    <router-view :class="!store.getters.getTheme ? 'form' : 'formDark'">
+    
+    <div>
+      <router-view :class="!store.getters.getTheme ? 'form' : 'formDark'">
 
-    </router-view>
+      </router-view>
+      <div class="audio-player">
+        dad
+      </div>
+    </div>
   </div> 
 </template>
 
@@ -43,10 +49,12 @@ export default {
 }
 .form {
   margin: 1em;
+  padding-inline: 1em;
   border-radius: 10px;
   background: #313338;
 
   color:#61f798;
+  height: 75vh;
 }
 
 .appDark {
@@ -57,9 +65,21 @@ export default {
 }
 .formDark {
   margin: 1em;
+  padding-inline: 1em;
   border-radius: 10px;
   background: #222222;
 
   color:#61f798;
+  height: 75vh;
+}
+
+.audio-player {
+  margin: 1em;
+  padding-inline: 1em;
+  border-radius: 10px;
+  background: #313338;
+
+  color:#61f798;
+  height: 15vh;
 }
 </style>

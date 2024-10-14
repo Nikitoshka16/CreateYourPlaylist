@@ -1,9 +1,10 @@
 <template>
   <div>
-    <div v-for="song in songs" :key="song.id">
-      <strong> {{ song.musician.musiciannickname }} - {{ song.namesong }} {{ song.songduration }}</strong>
+    <div class="list">
+      <song-list
+        :songs="songs"
+      />
     </div>
-
     <div @click="store.dispatch('changeFormAuth')" v-show="store.getters.getFormAuth" class="modal-background"></div>
 
     <div v-show="store.getters.getFormAuth" class="auth">
@@ -11,40 +12,39 @@
       <h1>Авторизация</h1>
 
       <div class="authForm">
-    <my-input
-      :modelValue="email"
-      @update:modelValue="newValue => email = newValue"
-      placeholder="Введите email"
-    />
-    <my-input
-      :modelValue="password"
-      @update:modelValue="newValue => password = newValue"
-      placeholder="Введите пароль"
-      :isPassword="true"
-    />
-    <div>
-      <my-button
-        @click="AuthUser"
-      >
-        Войти
-      </my-button>
-      <my-button>Регистрация</my-button>
+        <my-input
+          :modelValue="email"
+          @update:modelValue="newValue => email = newValue"
+          placeholder="Введите email"
+        />
+        <my-input
+          :modelValue="password"
+          @update:modelValue="newValue => password = newValue"
+          placeholder="Введите пароль"
+          :isPassword="true"
+        />
+        <div>
+          <my-button
+            @click="AuthUser"
+          >
+          Войти
+          </my-button>
+          <my-button>Регистрация</my-button>
+        </div>
+      </div>
     </div>
-  </div>
-    </div>
-
   </div>
 </template>
 
 <script>
-import Cookies from 'js-cookie';
+import SongList from '@/components/SongList.vue';
 import store from '@/store';
 import axios from 'axios'
 import MyInput from '../components/UI/MyInput.vue';
 import MyButton from '../components/UI/MyButton.vue';
 import router from '@/router/router';
 export default {
-  components: { MyInput, MyButton },
+  components: { MyInput, MyButton, SongList},
     name: 'MainPage',
     computed: {
       store() {
@@ -60,14 +60,16 @@ export default {
   },
   mounted() {
     this.GetAllSongs();
+    console.log(this.songs)
   },
   methods: {
     async GetAllSongs(){
       try {
           const response = await axios.get('http://localhost:8000/api/allsongs/');
-          this.songs = response.data.songs
+          this.songs = response.data.songs;
+          console.log(this.songs);
       }catch (e){
-          console.log(e)
+          console.log(e);
       }
     },
     AuthUser() {
@@ -79,8 +81,7 @@ export default {
           this.password = '';
           this.email = '';
           store.dispatch('setUser', res.data.user);
-          router.push('/profile')
-          // Cookies.set('access_token', response.data.access, { expires: 1 });
+          router.push('/profile');
         }
         else if (res.status === 200 && res.data.message === 'incorrect'){
           alert('Неверный пароль');

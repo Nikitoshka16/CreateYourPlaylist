@@ -7,6 +7,7 @@ from .serializers import SongSerializer, UserSerializer
 from django.http import HttpResponse, JsonResponse
 import json
 from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
 
 
 @csrf_exempt
@@ -26,10 +27,14 @@ def get_theme(request):
     theme = request.COOKIES.get('theme', 'false') 
     return JsonResponse({'theme': theme})
 
-
+ 
 @api_view(['GET', 'POST'])
 def getAllSongs(request):
     songs = Songs.objects.select_related('musician').all();
+
+    for song in songs:
+        song.file_url = f"{settings.MEDIA_URL}{song.audiofile}"
+
     serializer = SongSerializer(songs, many=True)
     
     return Response({'songs': serializer.data})
