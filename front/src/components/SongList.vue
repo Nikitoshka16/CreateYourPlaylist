@@ -4,6 +4,7 @@
             v-for="song in songs"
             :song="song"
             :key = "song.id"
+            @addText = "$emit('addText', song)"
         >
         </song>
     </div>

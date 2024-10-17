@@ -8,8 +8,12 @@
       <router-view :class="!store.getters.getTheme ? 'form' : 'formDark'">
 
       </router-view>
-      <div class="audio-player">
-        dad
+      <div :class="!store.getters.getTheme ? 'audio-player' : 'audio-playerDark'">
+        <audio 
+          v-if='Object.keys(store.getters.getCurrentSong).length !== 0'
+          controls :src="getAudioUrl(store.getters.getCurrentSong.file_url)"
+        />
+        <h1 v-else> Выберите трек!</h1>
       </div>
     </div>
   </div> 
@@ -31,6 +35,11 @@ export default {
     return {
 
     };
+  },
+  methods: {
+    getAudioUrl(fileUrl) {
+      return `http://localhost:8000${fileUrl}`;
+    },
   }
 }
 </script>
@@ -78,6 +87,16 @@ export default {
   padding-inline: 1em;
   border-radius: 10px;
   background: #313338;
+
+  color:#61f798;
+  height: 15vh;
+}
+
+.audio-playerDark {
+  margin: 1em;
+  padding-inline: 1em;
+  border-radius: 10px;
+  background: #222222;
 
   color:#61f798;
   height: 15vh;

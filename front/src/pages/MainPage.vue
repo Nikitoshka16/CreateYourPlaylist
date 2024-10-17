@@ -60,7 +60,6 @@ export default {
   },
   mounted() {
     this.GetAllSongs();
-    console.log(this.songs)
   },
   methods: {
     async GetAllSongs(){
@@ -80,6 +79,7 @@ export default {
           store.dispatch('changeFormAuth');
           this.password = '';
           this.email = '';
+          console.log(res.data.user);
           store.dispatch('setUser', res.data.user);
           router.push('/profile');
         }
