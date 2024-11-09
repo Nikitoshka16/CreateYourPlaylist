@@ -1,5 +1,21 @@
 <template>
   <div>
+
+    <div class="searchForm">
+      <div class="searchForm">
+      <my-input
+        id="searchText"
+        :modelValue="searchText"
+        @update:modelValue="newValue => searchText = newValue"
+        placeholder="Поиск..."
+        name="search_field"
+        autocomplete="new-password"
+        autocorrect="off"
+        @input="searchSongs" 
+      />
+    </div>
+    </div>
+
     <div class="list">
       <song-list
         :songs="songs"
@@ -16,12 +32,16 @@
           :modelValue="email"
           @update:modelValue="newValue => email = newValue"
           placeholder="Введите email"
+          name="email"
+          autocomplete="username"
         />
         <my-input
           :modelValue="password"
           @update:modelValue="newValue => password = newValue"
           placeholder="Введите пароль"
           :isPassword="true"
+          name="password"
+          autocomplete="new-password"
         />
         <div>
           <my-button
@@ -56,12 +76,29 @@ export default {
       songs: [],
       email: '',
       password: '',
+      searchText: '',
     };
   },
   mounted() {
     this.GetAllSongs();
   },
   methods: {
+    async searchSongs() {
+      
+      if (this.searchText.trim()) { 
+        try {
+          
+          const response = await axios.get('http://localhost:8000/search-songs/', {
+            params: { query: this.searchText } 
+          });
+          this.songs = response.data.songs;
+        } catch (error) {
+          console.error('Ошибка при поиске:', error);
+        }
+      } else {
+        this.GetAllSongs(); 
+      }
+    },
     async GetAllSongs(){
       try {
           const response = await axios.get('http://localhost:8000/api/allsongs/');
@@ -131,5 +168,9 @@ export default {
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+}
+.searchForm {
+  height: 10vh;
+  padding-right: 1em;
 }
 </style>

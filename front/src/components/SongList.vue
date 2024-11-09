@@ -5,6 +5,8 @@
             :song="song"
             :key = "song.id"
             @addText = "$emit('addText', song)"
+            @deleteSong = "$emit('deleteSong', song)"
+            @editSong = "$emit('editSong', song)"
         >
         </song>
     </div>
@@ -28,7 +30,7 @@ export default {
 <style>
 .songlist {
     overflow-y: scroll;
-    height: 75vh;
+    height: 65vh;
 }
 .songlist::-webkit-scrollbar {
   width: 0.3em;

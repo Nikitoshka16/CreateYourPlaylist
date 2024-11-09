@@ -5,14 +5,79 @@
     >
     {{ store.getters.getTheme == false ? 'Switch to MORE DARK Theme' : 'Switch to Dark Theme' }}
     </my-button> -->
+    <div class="toolForm">
+      <my-button
+        @click="openAddSongForm"
+      >
+        Добавить композицию
+      </my-button>
+    </div>
     <div class="list">
       <song-list
         @addText="addText"
+        @deleteSong = "deleteSong"
+        @editSong = "openEditSongForm"
         :songs="songs"
       />
     </div>
 
-    <div @click="this.addText" v-show="this.isFormAddText" class="addTextBackground"></div>
+    <div @click="this.openAddSongForm" v-show="this.isAddSongForm" class="addSongBackground"></div>
+    <div v-show="this.isAddSongForm" class="addSong">
+
+      <h1>Окно добавления композиции</h1>
+
+      <div class="addSongForm">
+        <div clas="inputForm">
+          <my-input
+            :modelValue="namesong"
+            @update:modelValue="newValue => namesong = newValue"
+            placeholder="Название композиции"
+            required
+          />
+          <my-input
+            :modelValue="genre"
+            @update:modelValue="newValue => genre = newValue"
+            placeholder="Введите жанр композиции"
+          />
+          <input type="file" @change="onFileChange">
+
+          <my-button
+            @click="addSong"
+          >
+            Сохранить композицию
+          </my-button>
+        </div>
+      </div>
+    </div>
+
+    <div @click="this.openEditSongForm" v-show="this.isEditSongForm" class="editSongBackground"></div>
+    <div v-show="this.isEditSongForm" class="editSong">
+
+      <h1>Окно редактирования композиции</h1>
+
+      <div class="editSongForm">
+        <div clas="inputForm">
+          <my-input
+            :modelValue="newnamesong"
+            @update:modelValue="newValue => newnamesong = newValue"
+            placeholder="Название композиции"
+            required
+          />
+          <my-input
+            :modelValue="newgenre"
+            @update:modelValue="newValue => newgenre = newValue"
+            placeholder="Введите жанр композиции"
+          />
+
+          <my-button
+            @click="editSong"
+          >
+            Сохранить композицию
+          </my-button>
+        </div>
+      </div>
+    </div>
+    <!-- <div @click="this.addText" v-show="this.isFormAddText" class="addTextBackground"></div>
     <div v-show="this.isFormAddText" class="addText">
 
       <h1>Заполните форму или выберите файл</h1>
@@ -52,7 +117,7 @@
           <p v-else>пусто.</p>
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -74,9 +139,15 @@ export default {
       songs: [],
       musician: [],
       isFormAddText: false,
+      isAddSongForm: false,
+      isEditSongForm: false,
       song: [],
       str1: '',
       str2: '',
+      namesong: '',
+      genre: '',
+      newnamesong: '',
+      newgenre: '',
       file: null,
       files: [],
 
@@ -172,6 +243,9 @@ export default {
       this.isFormAddText = !this.isFormAddText;
       this.song = song;
     },
+    openAddSongForm() {
+      this.isAddSongForm = !this.isAddSongForm;
+    },
     async saveTextForm() {
       const formData = new FormData();
       formData.append('song', this.song.namesong);
@@ -221,6 +295,86 @@ export default {
         console.error('Error:', error);
       }
     },
+    async addSong() {
+      const formData = new FormData();
+      formData.append('namesong', this.namesong);
+      formData.append('genre', this.genre);
+      formData.append('musician', this.musician.id);
+      formData.append('audiofile', this.file)
+
+      try {
+        const response = await fetch('http://localhost:8000/addSong/', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          console.error('Errors:', data.errors);
+        } else {
+          const data = await response.json();
+          console.log(data.message);
+          this.namesong = '';
+          this.genre = '';
+          this.isAddSongForm = !this.isAddSongForm;
+          this.getMusicianSongs();
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    },
+    deleteSong(song) {
+      axios.delete('http://localhost:8000/deleteSong/', {
+        data: {
+          namesong: song.namesong,
+          id: song.id
+        }
+      })
+      .then(res => {
+      if (res.status === 200 && res.data.message === 'success') {
+        
+        alert('Композиция удалена');
+        this.getMusicianSongs();
+      }
+      else if (res.status === 200 && res.data.message === 'badrequest'){
+        console.log('неверный метод запроса');
+      }
+      })
+    },
+    openEditSongForm(song) {
+      this.isEditSongForm = !this.isEditSongForm;
+      this.newnamesong = song.namesong;
+      this.newgenre = song.genre;
+      this.song = song;
+    },
+    async editSong() {
+      const formData = new FormData();
+      formData.append('oldnamesong', this.song.namesong)
+      formData.append('newnamesong', this.newnamesong);
+      formData.append('newgenre', this.newgenre);
+      formData.append('id', this.song.id);
+
+      try {
+        const response = await fetch('http://localhost:8000/editSong/', {
+          method: 'PUT',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const data = await response.json();
+          console.error('Errors:', data.errors);
+        } else {
+          const data = await response.json();
+          console.log(data.message);
+          this.newnamesong = '';
+          this.newgenre = '';
+          this.isEditSongForm = !this.isEditSongForm;
+          this.getMusicianSongs();
+        }
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    },
     onFileChange(event) {
       this.file = event.target.files[0];
     },
@@ -238,7 +392,7 @@ export default {
   color: #000;
 }
 
-.addText {
+.addText, .addSong, .editSong {
   background: rgb(50, 50, 50);
   border: 1px solid #61f798;
   border-radius: 1em;
@@ -255,7 +409,7 @@ export default {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   z-index: 1000;
 }
-.addTextBackground {
+.addTextBackground, .addSongBackground, .editSongBackground {
   position: fixed;
   top: 0;
   left: 0;
@@ -264,10 +418,13 @@ export default {
   background-color: rgba(0, 0, 0, 0.8); 
   z-index: 999;
 }
-.addTextForm {
+.addTextForm, .addSongForm, .editSongForm {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
   align-items: center;
+}
+.toolForm {
+  height: 10vh;
 }
 </style>

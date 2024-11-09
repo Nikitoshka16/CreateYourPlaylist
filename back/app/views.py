@@ -12,6 +12,10 @@ from .forms import DataForm
 import xml.etree.ElementTree as ET
 import os
 from django.core.exceptions import ValidationError
+from mutagen import File
+from datetime import datetime, timedelta
+from django.shortcuts import get_object_or_404
+from django.db.models import Q
 
 @csrf_exempt
 def set_theme(request):
@@ -151,3 +155,106 @@ def list_files(request):
             file_list.append(file)
     
     return JsonResponse({"files": file_list})
+
+
+@api_view(['POST', 'GET'])
+def addSong(request):
+
+    if request.method == 'POST' and request.FILES.get('audiofile'):
+        uploaded_file = request.FILES['audiofile']
+
+        try:
+            file_path = os.path.join(settings.MEDIA_ROOT, f"audio_files/{request.POST['namesong']}.mp3")
+
+            with open(file_path, 'wb+') as destination:
+                for chunk in uploaded_file.chunks():
+                    destination.write(chunk)
+            
+
+            audio = File(file_path)
+            
+            if audio is None or not hasattr(audio.info, 'length'):
+                return JsonResponse({"error": "Невозможно определить продолжительность аудиофайла."}, status=400)
+            
+            song_duration = timedelta(seconds=int(audio.info.length))
+
+
+            song = Songs.objects.create(
+                musician=get_object_or_404(Musicians, pk=request.POST.get('musician')),
+                namesong=request.POST['namesong'],
+                genre=request.POST['genre'],
+                audiofile=f"audio_files/{request.POST['namesong']}.mp3",
+                songpreview=None,  
+                songrealeasedatee=datetime.today().strftime("%Y-%m-%d"),
+                songduration=song_duration,
+            )
+           
+            
+            return JsonResponse({"message": "success"})
+
+        except ValidationError as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['PUT'])
+def editSong(request):
+
+    if request.method == 'PUT':
+
+        try:
+
+            song = get_object_or_404(Songs, pk=request.POST.get('id'))
+
+            song.namesong = request.POST.get('newnamesong')
+            song.genre = request.POST.get('newgenre')
+            
+            new_file_path = os.path.join(settings.MEDIA_ROOT, f"audio_files/{request.POST.get('newnamesong')}.mp3")
+
+            # Переименовываем файл, если название изменилось
+            old_file_path = os.path.join(settings.MEDIA_ROOT, f"audio_files/{request.POST.get('oldnamesong')}.mp3")
+
+            if request.POST.get('oldnamesong') != request.POST.get('newnamesong') and os.path.exists(old_file_path):
+                os.rename(old_file_path, new_file_path)
+                song.audiofile = f"audio_files/{request.POST.get('newnamesong')}.mp3"
+            
+            song.save()           
+            
+            return JsonResponse({"message": "success"})
+
+        except ValidationError as e:
+            return JsonResponse({"error": str(e)}, status=400)
+
+@api_view(['DELETE'])
+def deleteSong(request):
+    if request.method == 'DELETE':
+
+        try:
+            file_path = os.path.join(settings.MEDIA_ROOT, f"audio_files/{request.data.get('namesong')}.mp3")
+
+            os.remove(file_path)
+
+            song = Songs.objects.get(pk=request.data.get('id'))
+            song.delete()
+            
+            return JsonResponse({"message": "success"})
+
+        except Songs.DoesNotExist:
+            return JsonResponse({"error": "Song not found"}, status=404)
+        
+@api_view(['GET'])
+def search_songs(request):
+    query = request.GET.get('query', '')  # Название песни или имя музыканта
+
+    # Начинаем с получения всех песен
+    songs = Songs.objects.all()
+
+    # Если задан запрос
+    if query:
+        # Используем Q объекты для поиска по обеим полям с логикой OR
+        songs = songs.filter(
+            Q(namesong__icontains=query) | Q(musician__musiciannickname__icontains=query)
+        )
+
+    # Сериализация результатов
+    serializer = SongSerializer(songs, many=True)
+    
+    return JsonResponse({"songs": serializer.data})

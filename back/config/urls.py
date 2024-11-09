@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path
-from app.views import getAllSongs, loginUser, set_theme, get_theme, getMusician, getMusicianSongs, saveTextForm, saveTextFile, list_files
+from app.views import getAllSongs, loginUser, set_theme, get_theme, getMusician, getMusicianSongs, saveTextForm, saveTextFile, list_files, addSong, deleteSong, search_songs, editSong
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -15,6 +15,11 @@ urlpatterns = [
     path('saveTextForm/', saveTextForm),
     path('saveTextFile/', saveTextFile),
     path('list_files/', list_files),
+    path('addSong/', addSong),
+    path('deleteSong/', deleteSong),
+    path('search-songs/', search_songs),
+    path('editSong/', editSong),
+    
 ]
  
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 

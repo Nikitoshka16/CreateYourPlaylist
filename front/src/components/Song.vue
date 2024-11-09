@@ -12,6 +12,18 @@
         >
             добавить текст
         </my-button>
+        <my-button
+            v-if="isUserPage"
+            @click="$emit('deleteSong', song)"
+        >
+            Удалить
+        </my-button>
+        <my-button
+            v-if="isUserPage"
+            @click="$emit('editSong', song)"
+        >
+            Редактировать
+        </my-button>
     </div>
 </template>
 

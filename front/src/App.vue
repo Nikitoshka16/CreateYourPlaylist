@@ -38,12 +38,13 @@ export default {
   },
   methods: {
     getAudioUrl(fileUrl) {
+      console.log(fileUrl);
       return `http://localhost:8000${fileUrl}`;
     },
   }
 }
 </script>
-
+ 
 <style>
 * {
   padding: 0;
