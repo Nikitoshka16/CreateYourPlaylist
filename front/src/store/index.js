@@ -7,6 +7,7 @@ export default createStore({
         userData: [],
         theme: false,
         currentSong: [],
+        token: '',
     }),
     getters: {
         getIsAuth(state){
@@ -23,6 +24,9 @@ export default createStore({
         },
         getCurrentSong(state) {
             return state.currentSong
+        },
+        getToken(state){
+            return state.token
         }
     },
     mutations: {
@@ -34,6 +38,9 @@ export default createStore({
         },
         setCurrentSong(state, song) {
             state.currentSong = song;
+        },
+        set_Token(state, token) {
+            state.token = token;
         }
     },
     actions: {
@@ -45,6 +52,9 @@ export default createStore({
         },
         setUser({commit}, user) {
             commit('set_User', user) 
+        },
+        setToken({commit}, token) {
+            commit('set_Token', token) 
         },
         changeTheme({ commit }, theme = !this.state.theme) {
             commit('setTheme', theme);

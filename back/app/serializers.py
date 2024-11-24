@@ -22,3 +22,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = '__all__' 
+
+class SongUploadSerializer(serializers.Serializer):
+    namesong = serializers.CharField(max_length=255)  # Название песни
+    genre = serializers.CharField(max_length=100)  # Жанр песни
+    musician = serializers.IntegerField()  # ID музыканта
+    audiofile = serializers.FileField()  # Аудиофайл
+
+class SongEditSerializer(serializers.Serializer):
+    newnamesong = serializers.CharField(max_length=255)  # Название песни
+    newgenre = serializers.CharField(max_length=100)  # Жанр песни
+    

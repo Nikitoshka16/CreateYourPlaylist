@@ -155,10 +155,10 @@ export default {
   },
   mounted() {
     this.checkMusician();
-    this.fetchFiles();
+    // this.fetchFiles();
   },
   created() {
-    this.getCurrentTheme();
+    // this.getCurrentTheme();
   },
   methods: {
     async fetchFiles() {
@@ -211,7 +211,7 @@ export default {
         if (res.status === 200 && res.data.message === 'correct') {
           
           this.musician = res.data.musician;
-          console.log(this.musician);
+          // console.log(this.musician);
           this.getMusicianSongs();
           // store.dispatch('setUser', res.data.user);
         }
@@ -228,7 +228,7 @@ export default {
       .then(res => {
         if (res.status === 200 && res.data.message === 'correct') {
           this.songs = res.data.songs;
-          console.log(this.songs);
+          // console.log(this.songs);
           // store.dispatch('setUser', res.data.user);
         }
         else if (res.status === 200 && res.data.message === 'notfound'){
@@ -305,6 +305,9 @@ export default {
       try {
         const response = await fetch('http://localhost:8000/addSong/', {
           method: 'POST',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+          },
           body: formData,
         });
 
@@ -323,23 +326,25 @@ export default {
         console.error('Error:', error);
       }
     },
-    deleteSong(song) {
-      axios.delete('http://localhost:8000/deleteSong/', {
-        data: {
-          namesong: song.namesong,
-          id: song.id
+    async deleteSong(song) {
+      try {
+        const response = await fetch(`http://localhost:8000/song/${song.id}/`, {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`, 
+          },
+        });
+
+        if (response.ok) {
+          alert('Композиция удалена');
+          this.getMusicianSongs();
+        } else {
+          const data = await response.json();
+          console.error('Error:', data.message || 'Ошибка удаления');
         }
-      })
-      .then(res => {
-      if (res.status === 200 && res.data.message === 'success') {
-        
-        alert('Композиция удалена');
-        this.getMusicianSongs();
+      } catch (error) {
+        console.error('Error:', error);
       }
-      else if (res.status === 200 && res.data.message === 'badrequest'){
-        console.log('неверный метод запроса');
-      }
-      })
     },
     openEditSongForm(song) {
       this.isEditSongForm = !this.isEditSongForm;
@@ -349,20 +354,21 @@ export default {
     },
     async editSong() {
       const formData = new FormData();
-      formData.append('oldnamesong', this.song.namesong)
       formData.append('newnamesong', this.newnamesong);
       formData.append('newgenre', this.newgenre);
-      formData.append('id', this.song.id);
 
       try {
-        const response = await fetch('http://localhost:8000/editSong/', {
+        const response = await fetch(`http://localhost:8000/song/${this.song.id}/`, {
           method: 'PUT',
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`, 
+          },
           body: formData,
         });
 
         if (!response.ok) {
           const data = await response.json();
-          console.error('Errors:', data.errors);
+          console.error('Errors:', data.errors || data.message);
         } else {
           const data = await response.json();
           console.log(data.message);

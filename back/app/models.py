@@ -1,4 +1,5 @@
 from django.db import models
+import secrets
 
 
 class Musiclabels(models.Model):
@@ -91,7 +92,8 @@ class Users(models.Model):
     email = models.TextField()
     password = models.TextField()
     username = models.TextField()
-    userdatereg = models.DateField(db_column='userDateReg', blank=True, null=True)  # Field name made lowercase.
+    userdatereg = models.DateField(db_column='userDateReg', blank=True, null=True)
+    token = models.TextField()  
 
     class Meta:
         managed = False
@@ -101,4 +103,8 @@ class Users(models.Model):
     
     def __str__(self):
         return self.username
+    
+    def generate_token(self):
+        self.token = secrets.token_hex(20) 
+        self.save()
 

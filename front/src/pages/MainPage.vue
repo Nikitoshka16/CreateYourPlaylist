@@ -81,7 +81,7 @@ export default {
   },
   mounted() {
     this.GetAllSongs();
-  },
+  }, 
   methods: {
     async searchSongs() {
       
@@ -101,37 +101,42 @@ export default {
     },
     async GetAllSongs(){
       try {
-          const response = await axios.get('http://localhost:8000/api/allsongs/');
+          const response = await axios.get('http://localhost:8000/allsongs/');
           this.songs = response.data.songs;
-          console.log(this.songs);
       }catch (e){
           console.log(e);
       }
     },
     AuthUser() {
-      axios.post('http://localhost:8000/login/', {email: this.email, password: this.password})
-      .then(res => {
-        if (res.status === 200 && res.data.message === 'correct') {
-          store.dispatch('changeIsAuth');
-          store.dispatch('changeFormAuth');
-          this.password = '';
-          this.email = '';
-          console.log(res.data.user);
-          store.dispatch('setUser', res.data.user);
-          router.push('/profile');
-        }
-        else if (res.status === 200 && res.data.message === 'incorrect'){
-          alert('Неверный пароль');
-        }
-        else if (res.status === 200 && res.data.message === 'notfound'){
-          alert('Пользователя с таким email не существует');
-        }
-        else if (res.status === 200 && res.data.message === 'badrequest'){
-          alert('неверный метод запроса');
-        }
-      })
-      
-    }
+      axios.post('http://localhost:8000/login/', { email: this.email, password: this.password })
+        .then(res => {
+          if (res.status === 200 && res.data.message === 'correct') {
+            const token = res.data.token;
+            console.log(token);
+            if (token) {
+              localStorage.setItem('token', token); 
+              store.dispatch('changeIsAuth');
+              store.dispatch('changeFormAuth');
+              this.password = '';
+              this.email = '';
+              store.dispatch('setUser', res.data.user);
+              router.push('/profile');
+            } else {
+              alert('Ошибка аутентификации: токен отсутствует');
+            }
+          } else if (res.status === 200 && res.data.message === 'incorrect') {
+            alert('Неверный пароль');
+          } else if (res.status === 200 && res.data.message === 'notfound') {
+            alert('Пользователя с таким email не существует');
+          } else if (res.status === 200 && res.data.message === 'badrequest') {
+            alert('Неверный метод запроса');
+          }
+        })
+        .catch(error => {
+          console.error('Ошибка аутентификации:', error);
+          alert('Ошибка сервера, повторите попытку позже.');
+        });
+    },
   }
 }
 </script>
